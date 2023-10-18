@@ -32,5 +32,9 @@
 *.app
 
 # Vim
-*.un~
-*.h~
+*.swp
+*.*~
+
+# Autre repertoires
+References/*
+Tests/*
