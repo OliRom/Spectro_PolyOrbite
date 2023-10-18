@@ -9,8 +9,6 @@
 #define N_EFF_PIXELS 3648  // Nombre de pixels actifs
 #define N_DUMMY_PIXELS_2 14  // Nombre de pixels inactifs à la fin
 
-#define CLK_FREQ 2e6  // Fréquence de la clock (Hz)
-
 
 class TCD1304_GP{
   private:
