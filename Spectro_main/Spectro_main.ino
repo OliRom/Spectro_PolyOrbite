@@ -1,14 +1,16 @@
 #include "Parameters.h"
+#include "Fonctions.h"
 #include "Laser.h"
 #include "TCD1304_GP.h"
 
 
 void setup() {
-  // put your setup code here, to run once:
+  Serial.begin(9600);
+  delay(5000);
 
+  ADC6_setup();  // Initialisation du port A6 en analogRead rapide
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
 }
