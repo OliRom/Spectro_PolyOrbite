@@ -27,6 +27,6 @@ class TCD1304_GP{
     void get_data(int16_t data[N_PIXELS]);  // Obtenir les données d'une mesure
 
     void set_integration_time(int time);  // Spécifier le temps d'intégration (us)
-}
+};
 
 #endif
