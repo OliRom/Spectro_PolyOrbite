@@ -3,10 +3,15 @@
 
 #include <Arduino.h>
 
+/* * * Pour les lectures analogiques rapides * * */
+void ADCSetup(int n)();  // Activation de la pin Amn en mode analogique - Utiliser Pmn
+void ADCSelect(int n, bool activation);  // Sélection de la pin lors des lectures analogues - Utiliser ANmn
+void ADCStart();  // Débuter une lecture analogique (1.5MHz)
+uint16_t ADCRead(int m);  // Obtenir la valeur de la lecture analogique - Utiliser ANmn
 
-void ADC6_setup();  // Activation de la pin A6 en mode lecture raide
-uint16_t ADC6_analogRead();  // Lecture analogue à 1.5MHz sur la pin A6
-void digitalWriteFast();  // Écriture rapide sur une pin digitale (38.0 ns = 26.3 MHz)
+
+/* * * Pour les écritures digitales rapides * * */
+void digitalWriteFast(byte m, byte n, bool state);  // Écriture rapide sur une pin digitale (38.0 ns = 26.3 MHz) - Utiliser Pmn
 
 
 #endif
