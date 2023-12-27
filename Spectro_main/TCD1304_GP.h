@@ -36,8 +36,8 @@ class TCD1304_GP{
   public:
     TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin);
 
-    void read_data();  // Lecture d'une image
-    void get_data(int16_t data[N_PIXELS]);  // Obtenir les données d'une mesure
+    void capture_data();  // Lecture d'une image
+    void shift_data(int16_t data[N_PIXELS]);  // Obtenir les données d'une mesure
 
     void set_integration_time(int time);  // Spécifier le temps d'intégration (us)
 };

@@ -1,3 +1,4 @@
+#include "api/Common.h"
 #include "Arduino.h"
 #include "TCD1304_GP.h"
 #include "Fonctions.h"
@@ -7,14 +8,14 @@ TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin) : _
   pinMode(_sh_pin, OUTPUT);
   pinMode(_icg_pin, OUTPUT);
 
-  int _clk_pin_Pm = get_Pm(_clk_pin);
-  int _clk_pin_Pn = get_Pn(_clk_pin);
-  int _os_pin_An = get_ANn(_os_pin);
-  int _os_pin_Pn = get_Pn(_os_pin);
-  int _sh_pin_Pm = get_Pm(_sh_pin);
-  int _sh_pin_Pn = get_Pn(_sh_pin);
-  int _icg_pin_Pm = get_Pm(_icg_pin);
-  int _icg_pin_Pn = get_Pn(_icg_pin);
+  _clk_pin_Pm = get_Pm(_clk_pin);
+  _clk_pin_Pn = get_Pn(_clk_pin);
+  _os_pin_An = get_ANn(_os_pin);
+  _os_pin_Pn = get_Pn(_os_pin);
+  _sh_pin_Pm = get_Pm(_sh_pin);
+  _sh_pin_Pn = get_Pn(_sh_pin);
+  _icg_pin_Pm = get_Pm(_icg_pin);
+  _icg_pin_Pn = get_Pn(_icg_pin);
 
   ADCSetup();  // Initialisation du convertisseur ADC0
 }
@@ -28,7 +29,14 @@ void TCD1304_GP::_flush_data(){
   
 }
 
-void TCD1304_GP::read_data(){
+void TCD1304_GP::capture_data(){
+  digitalWriteFast(_sh_pin_Pm, _sh_pin_Pn, true);
+  delayMicroseconds(1);
+  digitalWriteFast(_sh_pin_Pm, _sh_pin_Pn, false);
+  delayMicroseconds(_integration_time - 1);
+}
+
+void TCD1304_GP::shift_data(int16_t data[N_PIXELS]){
   noInterrupts();
 
   // Acquisition des données
@@ -42,10 +50,6 @@ void TCD1304_GP::read_data(){
   interrupts();
 }
 
-void TCD1304_GP::get_data(int16_t data[N_PIXELS]){
-
-}
-
 void TCD1304_GP::set_integration_time(int time){
-
+  _integration_time = time;
 }
