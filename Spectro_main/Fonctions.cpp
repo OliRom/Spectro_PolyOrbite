@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "Fonctions.h"
 
 
@@ -43,6 +44,69 @@ void ADCStart(){
 
 uint16_t ADCRead(int m){  // Utiliser le nom de la pin ANmn
   return R_ADC0->ADDR[m];  // Lire le registre où la valeur est enregistrée
+}
+
+
+int get_ANn(int pin){
+  switch (pin){
+    case A0: return 6;
+    case A1: return 5;
+    case A2: return 4;
+    case A3: return 2;
+    case A4: return 1;
+    case A5: return 3;
+    case A6: return 12;
+  }
+}
+
+
+int get_Pn(int pin){
+  switch (pin){
+    case A0: return 6;
+    case A1: return 5;
+    case A2: return 4;
+    case A3: return 2;
+    case A4: return 1;
+    case A5: return 15;
+    case A6: return 14;
+
+    case D0: return 5;
+    case D1: return 6;
+    case D2: return 11;
+    case D3: return 3;
+    case D4: return 1;
+    case D5: return 10;
+    case D6: return 1;
+    case D7: return 2;
+    /*case D8: return 0;
+    case D9: return 4;
+    case D10: return 15;
+    case D11: return 7;
+    case D12: return 8;
+    case D13: return 10;
+    case D14: return 2;*/
+  }
+}
+
+
+int get_Pm(int pin){
+  switch (pin){
+    case D0: return 1;
+    case D1: return 1;
+    case D2: return 1;
+    case D3: return 3;
+    case D4: return 4;
+    case D5: return 2;
+    case D6: return 6;
+    case D7: return 4;
+    /*case D8: return 9;
+    case D9: return 2;
+    case D10: return 3;
+    case D11: return 4;
+    case D12: return 4;
+    case D13: return 1;
+    case D14: return 6;*/
+  }
 }
 
 

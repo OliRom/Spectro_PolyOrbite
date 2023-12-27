@@ -17,8 +17,21 @@ class TCD1304_GP{
     byte _sh_pin;  // Pin du temps d'intégration
     byte _icg_pin;  // Pin du "Integration clear gate"
 
+    // Valeurs Pn et An ou Pn des pins. Ces valeurs servent au lectures analogiques et écritures digitales rapides
+    int _clk_pin_Pm;
+    int _clk_pin_Pn;
+    int _os_pin_An;
+    int _os_pin_Pn;
+    int _sh_pin_Pm;
+    int _sh_pin_Pn;
+    int _icg_pin_Pm;
+    int _icg_pin_Pn;
+
     int _integration_time;  // Temps d'intégration (us)
-    int16_t _data[N_PIXELS];  // Liste contenant les données
+    uint16_t _data[N_PIXELS];  // Liste contenant les données
+
+    uint16_t _one_pixel_read();  // Lecture d'un pixel. Procédure à répérer N_PIXELS fois
+    void _flush_data();  // Sortir toutes les données lorsque ICG monte
 
   public:
     TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin);
