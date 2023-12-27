@@ -19,4 +19,7 @@ int get_Pm(int pin);  // Obtenir la valeur m dans Pmn de la pin
 void digitalWriteFast(byte m, byte n, bool state);  // Écriture rapide sur une pin digitale (38.0 ns = 26.3 MHz) - Utiliser Pmn
 
 
+/* * * Delay * * */
+#define delayTicks(n) { volatile int i; for(i=0; i<n; ++i) {} }  # Delai = 72.5 * n + 96 (ns)
+
 #endif
