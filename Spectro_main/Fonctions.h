@@ -7,8 +7,8 @@
 /* * * Pour les lectures analogiques rapides * * */
 void ADCSetup();  // Activation de la pin Amn en mode analogique
 void ADCSelect(int Pn, int An, bool activation=true);  // Sélection de la pin lors des lectures analogues
-void ADCStart();  // Débuter une lecture analogique (1.5MHz)
-uint16_t ADCRead(int m);  // Obtenir la valeur de la lecture analogique - Utiliser ANmn
+void ADCStart(bool wait);  // Débuter une lecture analogique (1.5MHz)
+uint16_t ADCRead(int n);  // Obtenir la valeur de la lecture analogique - Utiliser ANmn
 
 int get_ANn(int pin);  // Obtenir la valeur n dans ANmn de la pin
 int get_Pn(int pin);  // Obtenir la valeur n dans Pmn de la pin
@@ -20,6 +20,6 @@ void digitalWriteFast(byte m, byte n, bool state);  // Écriture rapide sur une 
 
 
 /* * * Delay * * */
-#define delayTicks(n) { volatile int i; for(i=0; i<n; ++i) {} }  # Delai = 72.5 * n + 96 (ns)
+#define delayTicks(n) { volatile int i; for(i=0; i<n; ++i) {} }  // Delai = 72.5 * n + 96 (ns)
 
 #endif

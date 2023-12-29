@@ -32,14 +32,18 @@ class TCD1304_GP{
 
     uint16_t _one_pixel_read();  // Lecture d'un pixel. Procédure à répérer N_PIXELS fois
     void _flush_data();  // Sortir toutes les données lorsque ICG monte
+    void _pulse_clock();
 
   public:
     TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin);
 
     void capture_data();  // Lecture d'une image
-    void shift_data(int16_t data[N_PIXELS]);  // Obtenir les données d'une mesure
+    void shift_data();  // Obtenir les données d'une mesure
 
     void set_integration_time(int time);  // Spécifier le temps d'intégration (us)
+    uint16_t get_data(int i);
+
+    int get_n_pixel();
 };
 
 #endif

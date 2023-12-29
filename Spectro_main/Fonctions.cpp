@@ -36,14 +36,14 @@ void ADCSelect(int Pn, int An, bool activation){
 }
 
 
-void ADCStart(){
+void ADCStart(bool wait=true){
   R_ADC0->ADCSR_b.ADST = 1;  // Activer la conversion ADC
-  while (R_ADC0->ADCSR_b.ADST);  // Attendre la fin de la conversion
+  if (wait){while (R_ADC0->ADCSR_b.ADST);}  // Attendre la fin de la conversion
 }
 
 
-uint16_t ADCRead(int m){  // Utiliser le nom de la pin ANmn
-  return R_ADC0->ADDR[m];  // Lire le registre où la valeur est enregistrée
+uint16_t ADCRead(int n){  // Utiliser le nom de la pin ANmn
+  return R_ADC0->ADDR[n];  // Lire le registre où la valeur est enregistrée
 }
 
 
