@@ -12,7 +12,7 @@ void setup() {
   delay(5000);
   Serial.println("\nDebut");
 
-  TCD.set_integration_time(200);
+  TCD.set_integration_time(1000);
 
   // ADCSetup();  // Initialisation du convertisseur ADC0
   // ADCSelect(14, 12, true);  // Sélection de la pin P014 = A012 = A6
@@ -32,9 +32,15 @@ void setup() {
 
 void loop() {
   if (1){
-  //Serial.println("loop");
-  TCD.capture_data();
-  TCD.shift_data();
+  //Serial.println("loop");  
+  
+  //TCD.clear_gate();
+  int count=8;
+  while (count--){
+    TCD.set_integration_time(1000);
+    TCD.capture_data();
+    TCD.shift_data();
+  }
 
   for (int i=0; i<TCD.get_n_pixel(); i++){
     Serial.print(i);
@@ -44,6 +50,6 @@ void loop() {
   //Serial.println(TCD._data)
 
   //digitalWriteFast(byte m, byte n, bool state)
-  //delay(1000);
+  delay(1000);
   }
 }

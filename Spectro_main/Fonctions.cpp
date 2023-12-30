@@ -11,15 +11,15 @@ void ADCSetup(){
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA501 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)));  // Déverrouiller l'accès aux registres système
   // R_MSTP->MSTPCRD_b.MSTPD15 = 0;  // Activer l'ADC1
   R_MSTP->MSTPCRD_b.MSTPD16 = 0;  // Activer l'ADC0
-  R_SYSTEM->SCKDIVCR_b.PCKA = 0b000;  // Division de la clock PCKA par 1
-  R_SYSTEM->SCKDIVCR_b.PCKC = 0b000;  // Division de la clock PCKC par 1
+  R_SYSTEM->SCKDIVCR_b.PCKA = 0b001;  // Division de la clock PCKA par 1
+  R_SYSTEM->SCKDIVCR_b.PCKC = 0b001;  // Division de la clock PCKC par 1
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
 
   R_ADC0->ADCER_b.ADRFMT = 0;  // Format de données justifié à droite
-  R_ADC1->ADCER_b.ADRFMT = 0;
+  // R_ADC1->ADCER_b.ADRFMT = 0;
   R_ADC0->ADCER_b.ADPRC = 0b00;  // Résolution de 12 bits
-  R_ADC1->ADCER_b.ADPRC = 0b00;
+  // R_ADC1->ADCER_b.ADPRC = 0b00;
 }
 
 
