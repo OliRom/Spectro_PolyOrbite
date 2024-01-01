@@ -5,14 +5,14 @@
 void ADCSetup(){
   R_PMISC->PWPR_b.B0WI = 0;  // Déverrouiller l'écriture dans le bit PFSWE
   R_PMISC->PWPR_b.PFSWE = 1;  // Activer l'écriture dans le registre PmnPFS
-  R_PMISC->PWPR_b.B0WI = 0;  // Verrouiller le registre PFSWE
+  R_PMISC->PWPR_b.B0WI = 1;  // Verrouiller le registre PFSWE
 
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA502 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)));  // Déverrouiller l'accès aux registres système
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA501 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)));  // Déverrouiller l'accès aux registres système
   // R_MSTP->MSTPCRD_b.MSTPD15 = 0;  // Activer l'ADC1
   R_MSTP->MSTPCRD_b.MSTPD16 = 0;  // Activer l'ADC0
-  R_SYSTEM->SCKDIVCR_b.PCKA = 0b001;  // Division de la clock PCKA par 1
-  R_SYSTEM->SCKDIVCR_b.PCKC = 0b001;  // Division de la clock PCKC par 1
+  R_SYSTEM->SCKDIVCR_b.PCKA = 0b001;  // Division de la clock PCKA par 2
+  R_SYSTEM->SCKDIVCR_b.PCKC = 0b001;  // Division de la clock PCKC par 2
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
 
@@ -113,4 +113,60 @@ int get_Pm(int pin){
 void digitalWriteFast(byte m, byte n, bool state){  // Utiliser le nom de la pin Pmn
   volatile uint32_t *PmnPFS_ptr = (volatile uint32_t *)(0x40080800 + 0x040 * m + 0x4 * n);  // Adresse du registre PmnPFS
   *PmnPFS_ptr = 0x0B000804 | state;  // 0b 0000 1011 0000 0000 0000 1000 0000 0100
+}
+
+
+void PWMSetup(){
+  R_PMISC->PWPR_b.B0WI = 0;  // Déverrouiller l'écriture dans le bit PFSWE
+  R_PMISC->PWPR_b.PFSWE = 1;  // Activer l'écriture dans le registre PmnPFS
+  R_PMISC->PWPR_b.B0WI = 1;  // Verrouiller le registre PFSWE
+
+  R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA502 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)));  // Déverrouiller l'accès aux registres système
+  R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA501 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)));  // Déverrouiller l'accès aux registres système
+
+  R_MSTP->MSTPCRE_b.MSTPE30 = 0;  // Activer le GPT1
+  
+  R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
+  R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
+}
+
+
+void PWMPinSelect(int Pn, int An){
+  volatile uint32_t *PmnPFS_ptr = (volatile uint32_t *)(0x40080800 + 0x40 * Pn + 0x4 * An);  // Adresse du registre PmnPFS
+  *PmnPFS_ptr = 0b0000'0011'0000'0001'0000'0000'0000'0000;  // Associer la Pin à la fonction GPT1 en mode I/O périphérique
+
+  R_GPT1->GTIOR_b.OAE = 1;  // Activer la sortir de la pin GTIOCnA
+  R_GPT1->GTIOR_b.GTIOA = 0b1001;  // Fonction de la pin GTIOCnA (voir tableau 21.4 du datasheet)
+
+  R_GPT1->GTBER_b.CCRA = 0b01;  // GTCCRA buffer operation (GTCCRA<->GTCCRC)
+  R_GPT1->GTBER_b.CCRB = 0b01;  // GTCCRB buffer operation (GTCCRB<->GTCCRE)
+  R_GPT1->GTBER_b.PR = 0b01;  // GTPR buffer operation (GTPBR<->GTPR)
+}
+
+
+void PWMSetPeriod(uint32_t T){
+  // Période réelle = T+1
+  R_GPT1->GTPBR = T-1;  // Buffer du compteur
+  if ((T > R_GPT1->GTCNT) and ~(R_GPT1->GTCR_b.CST)){R_GPT1->GTPR = T-1;}  // Si T < compteur et si le compteur est arrêté
+}
+
+
+void PWMSetDutyCycle(uint32_t n){
+  // Duty cycle réel = n+1
+  R_GPT1->GTCCR[2] = n-1;  // Registre de comparaison
+}
+
+
+void PWMStart(bool state){
+  if (state){
+    R_GPT1->GTPC_b.ASTP = 0;  // Désactiver le stop function
+    R_GPT1->GTPC_b.PCEN = 0;  // Désactiver le period counter
+    R_GPT1->GTCR_b.CST = 1;  // Activer le compteur
+  } else {
+    R_GPT1->GTPC_b.PCNT = 1;  // Period counter
+    R_GPT1->GTPC_b.ASTP = 1;  // Activer le stop function
+    R_GPT1->GTPC_b.PCEN = 1;  // Activer le period counter
+  }
+
+  // R_GPT1->GTCR_b.CST = state;  // État du compteur (activé/désactivé)
 }

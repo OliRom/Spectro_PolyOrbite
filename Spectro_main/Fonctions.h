@@ -22,4 +22,12 @@ void digitalWriteFast(byte m, byte n, bool state);  // Écriture rapide sur une 
 /* * * Delay * * */
 #define delayTicks(n) { volatile int i; for(i=0; i<n; ++i) {} }  // Delai = 72.5 * n + 96 (ns)
 
+
+/* * * Pour le PWM * * */
+void PWMSetup();
+void PWMPinSelect(int Pn, int An);
+void PWMSetPeriod(uint32_t T);  // Clk frequency: 100MHz
+void PWMSetDutyCycle(uint32_t n);
+void PWMStart(bool state);
+
 #endif
