@@ -157,7 +157,7 @@ void PWMSetDutyCycle(uint32_t n){
 }
 
 
-void PWMStart(bool state){
+void PWMStart(bool state, bool wait){
   if (state){
     R_GPT1->GTPC_b.ASTP = 0;  // Désactiver le stop function
     R_GPT1->GTPC_b.PCEN = 0;  // Désactiver le period counter
@@ -166,6 +166,8 @@ void PWMStart(bool state){
     R_GPT1->GTPC_b.PCNT = 1;  // Period counter
     R_GPT1->GTPC_b.ASTP = 1;  // Activer le stop function
     R_GPT1->GTPC_b.PCEN = 1;  // Activer le period counter
+
+    while (wait && R_GPT1->GTCR_b.CST){}  // Attendre la fin du cycle
   }
 
   // R_GPT1->GTCR_b.CST = state;  // État du compteur (activé/désactivé)

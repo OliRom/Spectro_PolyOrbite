@@ -28,6 +28,6 @@ void PWMSetup();
 void PWMPinSelect(int Pn, int An);
 void PWMSetPeriod(uint32_t T);  // Clk frequency: 100MHz
 void PWMSetDutyCycle(uint32_t n);
-void PWMStart(bool state);
+void PWMStart(bool state, bool wait=false);
 
 #endif
