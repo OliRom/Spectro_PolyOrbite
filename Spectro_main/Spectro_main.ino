@@ -8,11 +8,11 @@ TCD1304_GP TCD(CLK_PIN, OS_PIN, SH_PIN, ICG_PIN);
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(5000);
   Serial.println("\nDebut");
 
-  TCD.set_integration_time(1000);
+  TCD.set_integration_time(200000);
 
   // ADCSetup();  // Initialisation du convertisseur ADC0
   // ADCSelect(14, 12, true);  // Sélection de la pin P014 = A012 = A6
@@ -31,25 +31,23 @@ void setup() {
 }
 
 void loop() {
-  if (1){
-  //Serial.println("loop");  
-  
-  //TCD.clear_gate();
-  int count=8;
-  while (count--){
-    TCD.set_integration_time(1000);
-    TCD.capture_data();
-    TCD.shift_data();
+  if (Serial.available() > 0){
+    int tps = Serial.parseInt();
+    TCD.set_integration_time(tps);
+    Serial.print("Temps d'intégration: ");
+    Serial.println(tps);
+    delay(1000);
+    while (Serial.available() > 0){Serial.read();}
   }
+
+  TCD.capture_data();
+  TCD.shift_data();
 
   for (int i=0; i<TCD.get_n_pixel(); i++){
     Serial.print(i);
     Serial.print(",");
     Serial.println(TCD.get_data(i));
   }
-  //Serial.println(TCD._data)
 
-  //digitalWriteFast(byte m, byte n, bool state)
   delay(1000);
-  }
 }

@@ -8,7 +8,7 @@
 // * * * * * * * * * * * * * * //
 
 // Pin de contrôle et de données
-#define OS_PIN A6  // Pin de données
+#define OS_PIN A0  // Pin de données
 #define SH_PIN D0  // Shift gate
 #define ICG_PIN D1  // Integration clear gate
 #define CLK_PIN D2  // Clock
