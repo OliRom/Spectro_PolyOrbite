@@ -20,6 +20,12 @@ TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin) : _
   ADCSetup();  // Initialisation du convertisseur ADC0
 
   digitalWriteFast(_clk_pin_Pm, _clk_pin_Pn, true);
+
+  PWMSetup();
+  PWMPinSelect(_sh_pin_Pm, _sh_pin_Pn);
+  PWMSetPeriod(700);
+  PWMSetDutyCycle(200);
+  PWMStart(true);
 }
 
 uint16_t TCD1304_GP::_one_pixel_read(){
@@ -44,6 +50,10 @@ void TCD1304_GP::_pulse_clock(){
 }
 
 void TCD1304_GP::capture_data(){
+  noInterrupts();
+
+  PWMStart(false, true);
+
   digitalWriteFast(_sh_pin_Pm, _sh_pin_Pn, true);
   delayMicroseconds(1);
   digitalWriteFast(_sh_pin_Pm, _sh_pin_Pn, false);
@@ -54,16 +64,20 @@ void TCD1304_GP::capture_data(){
   delayMicroseconds(1);
   digitalWriteFast(_sh_pin_Pm, _sh_pin_Pn, false);
   delayMicroseconds(5);
-  digitalWriteFast(_icg_pin_Pm, _icg_pin_Pn, true);
+
+  interrupts();
 }
 
 void TCD1304_GP::shift_data(){
   noInterrupts();
 
-  // Acquisition des données
-
   // Sortie des données
   ADCSelect(_os_pin_Pn, _os_pin_An, true);  // Sélection de la pin _os_pin lors des lectures analogiques
+
+  digitalWriteFast(_icg_pin_Pm, _icg_pin_Pn, true);
+  PWMPinSelect(_sh_pin_Pm, _sh_pin_Pn);
+  PWMStart(true);
+
   for (int i=0; i<N_PIXELS; i++){
       _data[i] = _one_pixel_read();
   }
