@@ -2,7 +2,7 @@
 #define TCD1304_GP_H
 
 #include <Arduino.h>
-#include <stdint.h>
+// #include <stdint.h>
 
 #define N_PIXELS 3694  // Nombre total de pixels
 #define N_DUMMY_PIXELS_1 32  // Nombre de pixels inactifs au début

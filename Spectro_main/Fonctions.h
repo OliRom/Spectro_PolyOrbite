@@ -28,8 +28,9 @@ void PWMSetup(int pin);
 void PWMPinSelect(int pin, bool activation=true);
 void PWMSetPeriod(int pin, uint32_t T);  // Clk frequency: 100MHz
 void PWMSetDutyCycle(int pin, uint32_t n);
-void PWMStart(int pin, bool state, bool wait=false);
-R_GPT0_Type* get_GPT_n(int pin);
-bool PWM_pin_is_A(int pin);
+void PWMStart(int pin, bool state, bool wait=false);  // Attendre la fin du cycle avant de passer à la prochaine instruction si wait=true
+
+R_GPT0_Type* get_GPT_n(int pin);  // Obtenir le canal GPT (R_GPTn) de la pin
+bool PWM_pin_is_A(int pin);  // Savoir si la pin est GTIOnA ou GTIOnB
 
 #endif
