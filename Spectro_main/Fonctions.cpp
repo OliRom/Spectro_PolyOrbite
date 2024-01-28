@@ -116,7 +116,7 @@ void digitalWriteFast(byte m, byte n, bool state){  // Utiliser le nom de la pin
 }
 
 
-void PWMSetup(){
+void PWMSetup(int pin){
   R_PMISC->PWPR_b.B0WI = 0;  // Déverrouiller l'écriture dans le bit PFSWE
   R_PMISC->PWPR_b.PFSWE = 1;  // Activer l'écriture dans le registre PmnPFS
   R_PMISC->PWPR_b.B0WI = 1;  // Verrouiller le registre PFSWE
@@ -124,51 +124,121 @@ void PWMSetup(){
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA502 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)));  // Déverrouiller l'accès aux registres système
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA501 & (R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)));  // Déverrouiller l'accès aux registres système
 
-  R_MSTP->MSTPCRE_b.MSTPE30 = 0;  // Activer le GPT1
+  switch (pin){
+    case D0:
+      R_MSTP->MSTPCRE_b.MSTPE30 = 0;  // Activer le GPT1
+      break;
+
+    case D1:
+      R_MSTP->MSTPCRE_b.MSTPE23 = 0;  // GPT8
+      break;
+
+    case D2:
+      R_MSTP->MSTPCRE_b.MSTPE28 = 0;  // GPT3
+      break;
+
+    case D3:
+      R_MSTP->MSTPCRE_b.MSTPE24 = 0;  // GPT7
+      break;
+
+    case D4:
+      R_MSTP->MSTPCRE_b.MSTPE25 = 0;  // GPT6
+      break;
+
+    /* case D5:
+      R_MSTP->MSTPCRE_b.MSTPE?? = 0;  // Pas associé à un GPT particulier
+      break;*/
+
+    case D6:
+      R_MSTP->MSTPCRE_b.MSTPE25 = 0;  // GPT6
+      break;
+  }
   
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC1_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
   R_SYSTEM->PRCR = ((R_SYSTEM->PRCR & ~(R_SYSTEM_PRCR_PRKEY_Msk | R_SYSTEM_PRCR_PRC0_Msk)) | (0xA500 & R_SYSTEM_PRCR_PRKEY_Msk));  // Verrouiller l'accès aux registres système
 }
 
 
-void PWMPinSelect(int Pn, int An){
-  volatile uint32_t *PmnPFS_ptr = (volatile uint32_t *)(0x40080800 + 0x40 * Pn + 0x4 * An);  // Adresse du registre PmnPFS
-  *PmnPFS_ptr = 0b0000'0011'0000'0001'0000'0000'0000'0000;  // Associer la Pin à la fonction GPT1 en mode I/O périphérique
+void PWMPinSelect(int pin, bool activation){
+  int m = get_Pm(pin);
+  int n = get_Pn(pin);
+  R_GPT0_Type* GPT = get_GPT_n(pin);
 
-  R_GPT1->GTIOR_b.OAE = 1;  // Activer la sortir de la pin GTIOCnA
-  R_GPT1->GTIOR_b.GTIOA = 0b1001;  // Fonction de la pin GTIOCnA (voir tableau 21.4 du datasheet)
+  volatile uint32_t *PmnPFS_ptr = (volatile uint32_t *)(0x40080800 + 0x40 * m + 0x4 * n);  // Adresse du registre PmnPFS
+  *PmnPFS_ptr = 0b0000'0011'0000'0001'0000'0000'0000'0000;  // Associer la Pin à la fonction GPT en mode I/O périphérique
 
-  R_GPT1->GTBER_b.CCRA = 0b01;  // GTCCRA buffer operation (GTCCRA<->GTCCRC)
-  R_GPT1->GTBER_b.CCRB = 0b01;  // GTCCRB buffer operation (GTCCRB<->GTCCRE)
-  R_GPT1->GTBER_b.PR = 0b01;  // GTPR buffer operation (GTPBR<->GTPR)
-}
-
-
-void PWMSetPeriod(uint32_t T){
-  // Période réelle = T+1
-  R_GPT1->GTPBR = T-1;  // Buffer du compteur
-  if ((T > R_GPT1->GTCNT) and ~(R_GPT1->GTCR_b.CST)){R_GPT1->GTPR = T-1;}  // Si T < compteur et si le compteur est arrêté
-}
-
-
-void PWMSetDutyCycle(uint32_t n){
-  // Duty cycle réel = n+1
-  R_GPT1->GTCCR[2] = n-1;  // Registre de comparaison
-}
-
-
-void PWMStart(bool state, bool wait){
-  if (state){
-    R_GPT1->GTPC_b.ASTP = 0;  // Désactiver le stop function
-    R_GPT1->GTPC_b.PCEN = 0;  // Désactiver le period counter
-    R_GPT1->GTCR_b.CST = 1;  // Activer le compteur
+  if (PWM_pin_is_A(pin)){
+    GPT->GTIOR_b.OAE = activation;  // Activer la sortir de la pin GTIOCnA
+    GPT->GTIOR_b.GTIOA = 0b1001;  // Fonction de la pin GTIOCnA (voir tableau 21.4 du datasheet)
+    GPT->GTBER_b.CCRA = 0b01;  // GTCCRA buffer operation (GTCCRA<->GTCCRC)
   } else {
-    R_GPT1->GTPC_b.PCNT = 1;  // Period counter
-    R_GPT1->GTPC_b.ASTP = 1;  // Activer le stop function
-    R_GPT1->GTPC_b.PCEN = 1;  // Activer le period counter
-
-    while (wait && R_GPT1->GTCR_b.CST){}  // Attendre la fin du cycle
+    GPT->GTIOR_b.OBE = activation;  // Activer la sortir de la pin GTIOCnB
+    GPT->GTIOR_b.GTIOB = 0b1001;  // Fonction de la pin GTIOCnB (voir tableau 21.4 du datasheet)
+    GPT->GTBER_b.CCRB = 0b01;  // GTCCRB buffer operation (GTCCRB<->GTCCRE)
   }
 
-  // R_GPT1->GTCR_b.CST = state;  // État du compteur (activé/désactivé)
+  GPT->GTBER_b.PR = 0b01;  // GTPR buffer operation (GTPBR<->GTPR)
+}
+
+
+void PWMSetPeriod(int pin, uint32_t T){
+  R_GPT0_Type* GPT = get_GPT_n(pin);
+
+  // Période réelle = T+1
+  GPT->GTPBR = T-1;  // Buffer du compteur
+  if ((T > GPT->GTCNT) and ~(GPT->GTCR_b.CST)){GPT->GTPR = T-1;}  // Si T < compteur et si le compteur est arrêté
+}
+
+
+void PWMSetDutyCycle(int pin, uint32_t n){
+  R_GPT0_Type* GPT = get_GPT_n(pin);
+
+  // Duty cycle réel = n+1
+  if (PWM_pin_is_A(pin)){
+    GPT->GTCCR[2] = n-1;  // Registre de comparaison
+  } else {
+    GPT->GTCCR[3] = n-1;  // Registre de comparaison
+  }
+}
+
+
+void PWMStart(int pin, bool state, bool wait){
+  R_GPT0_Type* GPT = get_GPT_n(pin);
+  if (state){
+    GPT->GTPC_b.ASTP = 0;  // Désactiver le stop function
+    GPT->GTPC_b.PCEN = 0;  // Désactiver le period counter
+    GPT->GTCR_b.CST = 1;  // Activer le compteur
+  } else {
+    GPT->GTPC_b.PCNT = 1;  // Period counter
+    GPT->GTPC_b.ASTP = 1;  // Activer le stop function
+    GPT->GTPC_b.PCEN = 1;  // Activer le period counter
+
+    while (wait && GPT->GTCR_b.CST){}  // Attendre la fin du cycle
+  }
+
+  // GPT->GTCR_b.CST = state;  // État du compteur (activé/désactivé)
+}
+
+R_GPT0_Type* get_GPT_n(int pin){
+  switch (pin){
+    case D0: return R_GPT1;
+    case D1: return R_GPT8;
+    case D2: return R_GPT3;
+    case D3: return R_GPT7;
+    case D4: return R_GPT6;
+    // case D5: return ???;
+    case D6: return R_GPT6;
+  }
+}
+
+bool PWM_pin_is_A(int pin){
+  switch (pin) {
+    case D0: return true;
+    case D1: return false;
+    case D2: return true;
+    case D3: return false;
+    case D4: return false;
+    // case D5: return ???;
+    case D6: return true;
+  }
 }

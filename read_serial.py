@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # Définir le port série et la vitesse de transmission (baudrate)
 port = "COM5"  # Remplacez cela par le port correct sur votre système (ex: "COM3" sur Windows)
 baudrate = 9600
-n_pixel  =3694
+n_pixel = 3694
 
 # Ouvrir la connexion série
 ser = serial.Serial(port, baudrate)

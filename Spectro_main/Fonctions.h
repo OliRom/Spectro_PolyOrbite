@@ -24,10 +24,12 @@ void digitalWriteFast(byte m, byte n, bool state);  // Écriture rapide sur une 
 
 
 /* * * Pour le PWM * * */
-void PWMSetup();
-void PWMPinSelect(int Pn, int An);
-void PWMSetPeriod(uint32_t T);  // Clk frequency: 100MHz
-void PWMSetDutyCycle(uint32_t n);
-void PWMStart(bool state, bool wait=false);
+void PWMSetup(int pin);
+void PWMPinSelect(int pin, bool activation=true);
+void PWMSetPeriod(int pin, uint32_t T);  // Clk frequency: 100MHz
+void PWMSetDutyCycle(int pin, uint32_t n);
+void PWMStart(int pin, bool state, bool wait=false);
+R_GPT0_Type* get_GPT_n(int pin);
+bool PWM_pin_is_A(int pin);
 
 #endif
