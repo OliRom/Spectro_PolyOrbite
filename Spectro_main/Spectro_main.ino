@@ -40,8 +40,10 @@ void loop() {
     while (Serial.available() > 0){Serial.read();}
   }
 
-  TCD.capture_data();
-  TCD.shift_data();
+  // TCD.capture_data();
+  // TCD.shift_data();
+
+  TCD.acquire_data(10);
 
   for (int i=0; i<TCD.get_n_pixel(); i++){
     Serial.print(i);
@@ -49,5 +51,5 @@ void loop() {
     Serial.println(TCD.get_data(i));
   }
 
-  delay(1000);
+  delay(500);
 }

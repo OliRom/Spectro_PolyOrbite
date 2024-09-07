@@ -27,7 +27,7 @@ class Laser{
     float get_temp();  // Obtenir la température du laser (oC)
     bool get_state();  // Obtenir l'état du laser (true: on, false: off)
 
-    void set_power(int power);  // Spécifier la puissance cible du laser (mW)
+    void set_target_power(int power);  // Spécifier la puissance cible du laser (mW)
     void set_target_temp(float temp);  // Spécifier la température cible du laser (oC)
 };
 

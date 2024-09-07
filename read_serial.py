@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 port = "COM5"  # Remplacez cela par le port correct sur votre système (ex: "COM3" sur Windows)
 baudrate = 9600
 n_pixel = 3694
+n_acquisitions = 10
 
 # Ouvrir la connexion série
 ser = serial.Serial(port, baudrate)
@@ -29,8 +30,15 @@ try:
             val[int(x)] = y
         
             if x == n_pixel-1:
-                plt.plot(range(n_pixel), val)
-                plt.ylim(0, 4096)
+                colors = (("dummy", "r", 16), ("shielded", "black", 13), ("buffer", "orange", 3), ("data", "b", 3648), (None, "r", 14))
+                ctr = 0
+                for name, c, n in colors:
+                    plt.plot(range(ctr, ctr+n), val[ctr : ctr+n], c=c, label=name)
+                    ctr += n
+#                 plt.plot(range(n_pixel), val)
+#                 plt.ylim(0, 4096)
+                plt.ylim(2500*n_acquisitions, 3000*n_acquisitions)
+                plt.legend()
                 plt.pause(0.01)
                 plt.clf()
         

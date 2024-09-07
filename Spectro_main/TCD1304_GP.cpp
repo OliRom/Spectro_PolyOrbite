@@ -68,7 +68,7 @@ void TCD1304_GP::capture_data(){
   interrupts();
 }
 
-void TCD1304_GP::shift_data(){
+void TCD1304_GP::shift_data(bool replace_data){
   noInterrupts();
 
   // Sortie des données
@@ -79,18 +79,26 @@ void TCD1304_GP::shift_data(){
   PWMStart(_sh_pin, true);
 
   for (int i=0; i<N_PIXELS; i++){
-      _data[i] = _one_pixel_read();
+      if (replace_data) {_data.all[i] = _one_pixel_read();}
+      else {_data.all[i] += _one_pixel_read();}
   }
 
   interrupts();
 }
 
+void TCD1304_GP::acquire_data(int acquisition_nb){
+  for (int i = 0; i < acquisition_nb; i++){
+    capture_data();
+    shift_data(i==0);
+  }
+}
+
 void TCD1304_GP::set_integration_time(int time){
-  _integration_time = time;
+  _integration_time = max(time, 2);
 }
 
 uint16_t TCD1304_GP::get_data(int i){
-  return _data[i];  // Retourne le pointeur
+  return _data.all[i];  // Retourne le pointeur
 }
 
 int TCD1304_GP::get_n_pixel(){
