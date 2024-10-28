@@ -21,6 +21,15 @@
 // * * * * * * * * * * * * * * * //
 // * * * Contrôle du Laser * * * //
 // * * * * * * * * * * * * * * * //
+#define TEC_PIN D4  // Pin d'activation du TEC du laser
+#define LASER_PIN D5  // Pin d'activation du laser
+#define LASER_POWER_PIN A5  // Pin de lecture de la puissance du laser
+#define LASER_TEMPERATURE_PIN A6  // Pin de lecture de la température du laser
 
+
+// * * * * * * * * * * * * * * * //
+// * * * Autres paramètres * * * //
+// * * * * * * * * * * * * * * * //
+#define FAN_PIN D3  // Pin du ventilateur
 
 #endif
