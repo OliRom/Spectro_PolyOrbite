@@ -2,7 +2,6 @@
 #define TCD1304_GP_H
 
 #include <Arduino.h>
-// #include <stdint.h>
 
 #define N_PIXELS 3694  // Nombre total de pixels
 #define N_DUMMY_PIXELS_1 16  // Nombre de pixels inactifs au début
@@ -50,17 +49,18 @@ class TCD1304_GP{
     void _flush_data();  // Sortir toutes les données lorsque ICG monte
     void _pulse_clock();
 
+    void _capture_data();  // Lecture d'une image; acquisition par le CCD
+    void _shift_data(bool replace_data=true);  // Obtenir les données d'une mesure à partir du CCD pour les stocker en mémoire
+
   public:
     TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin);
-
-    void capture_data();  // Lecture d'une image
-    void shift_data(bool replace_data=true);  // Obtenir les données d'une mesure
-    void acquire_data(int acquisition_nb=1);  // Lire les données du capteur. Équivalent à "capture_data()" suivi de "shift_data()".
+    
+    void acquire_data(int acquisition_nb=1);  // Lire les données du capteur. Correspond à "_capture_data()" suivi de "_shift_data()".
 
     void set_integration_time(int time);  // Spécifier le temps d'intégration (us)
-    uint16_t get_data(int i);
+    uint16_t get_data(int i);  // Pointeur vers les données en mémoire
 
-    int get_n_pixel();
+    int get_n_pixel();  // Obtenir le nombre de pixels du CCD
 };
 
 #endif

@@ -1,5 +1,4 @@
-// #include "api/Common.h"
-#include "Arduino.h"
+#include <Arduino.h>
 #include "TCD1304_GP.h"
 #include "Fonctions.h"
 
@@ -49,7 +48,7 @@ void TCD1304_GP::_pulse_clock(){
   delayTicks(4);  // (500 - 38) ns
 }
 
-void TCD1304_GP::capture_data(){
+void TCD1304_GP::_capture_data(){
   noInterrupts();
 
   PWMStart(_sh_pin, false, true);
@@ -68,7 +67,7 @@ void TCD1304_GP::capture_data(){
   interrupts();
 }
 
-void TCD1304_GP::shift_data(bool replace_data){
+void TCD1304_GP::_shift_data(bool replace_data){
   noInterrupts();
 
   // Sortie des données
@@ -88,8 +87,8 @@ void TCD1304_GP::shift_data(bool replace_data){
 
 void TCD1304_GP::acquire_data(int acquisition_nb){
   for (int i = 0; i < acquisition_nb; i++){
-    capture_data();
-    shift_data(i==0);
+    _capture_data();
+    _shift_data(i==0);
   }
 }
 

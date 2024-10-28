@@ -1,4 +1,4 @@
-#include "Arduino.h"
+#include <Arduino.h>
 #include "Laser.h"
 #include "Fonctions.h"
 
@@ -23,8 +23,6 @@ float Laser::get_power(){
 }
 
 float Laser::get_temp(){
-  //float V = ???;
-
 
 }
 
