@@ -2,9 +2,11 @@
 #include "Fonctions.h"
 #include "Laser.h"
 #include "TCD1304_GP.h"
+#include "StrCommander.h"
 
 
 TCD1304_GP CCD(CLK_PIN, OS_PIN, SH_PIN, ICG_PIN);
+StrCommander cmd;
 
 
 void setup() {

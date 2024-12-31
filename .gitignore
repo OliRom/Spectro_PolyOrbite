@@ -35,10 +35,14 @@
 *.swp
 *.*~
 
-# Autre repertoires
+# Autre fichiers et repertoires
+.gitignore
 References/*
 Tests/*
 Mini_tests/*
 *.dwf3work
 *.xlsx
 Registres PWM.txt
+Communication_python_debugging/*
+AD5272/*
+
