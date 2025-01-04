@@ -19,7 +19,8 @@ enum type_enum {
   // Functions
   INT_INT_INT,
   FLOAT_FLOAT,
-  _CCHAR  // const char
+  _CCHAR,  // const char
+  STR_,    // c++ string
 };
 
 
@@ -226,6 +227,15 @@ private:
           fun(a);
 
           return "";
+        }
+        break;
+
+      case STR_:
+        {
+          std::string (*fun)();
+          fun = reinterpret_cast<std::string (*)()>(entry.var);
+
+          return fun();
         }
         break;
 
