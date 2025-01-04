@@ -2,7 +2,8 @@
 #include "TCD1304_GP.h"
 #include "Fonctions.h"
 
-TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin) : _clk_pin(clk_pin), _os_pin(os_pin), _sh_pin(sh_pin), _icg_pin(icg_pin) {
+TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin)
+  : _clk_pin(clk_pin), _os_pin(os_pin), _sh_pin(sh_pin), _icg_pin(icg_pin) {
   pinMode(_clk_pin, OUTPUT);
   pinMode(_sh_pin, OUTPUT);
   pinMode(_icg_pin, OUTPUT);
@@ -27,7 +28,7 @@ TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin) : _
   PWMStart(_sh_pin, true);
 }
 
-uint16_t TCD1304_GP::_one_pixel_read(){
+uint16_t TCD1304_GP::_one_pixel_read() {
   _pulse_clock();  // 1000 ns
   ADCStart(false);
   _pulse_clock();  // 1000 ns
@@ -36,19 +37,18 @@ uint16_t TCD1304_GP::_one_pixel_read(){
   return ADCRead(_os_pin_An);
 }
 
-void TCD1304_GP::_flush_data(){
+void TCD1304_GP::_flush_data() {
   digitalWrite(_icg_pin, LOW);
-  
 }
 
-void TCD1304_GP::_pulse_clock(){
+void TCD1304_GP::_pulse_clock() {
   digitalWriteFast(_clk_pin_Pm, _clk_pin_Pn, false);  // 38 ns
-  delayTicks(4);  // (500 - 38) ns
-  digitalWriteFast(_clk_pin_Pm, _clk_pin_Pn, true);  // 38 ns
-  delayTicks(4);  // (500 - 38) ns
+  delayTicks(4);                                      // (500 - 38) ns
+  digitalWriteFast(_clk_pin_Pm, _clk_pin_Pn, true);   // 38 ns
+  delayTicks(4);                                      // (500 - 38) ns
 }
 
-void TCD1304_GP::_capture_data(){
+void TCD1304_GP::_capture_data() {
   noInterrupts();
 
   PWMStart(_sh_pin, false, true);
@@ -67,7 +67,7 @@ void TCD1304_GP::_capture_data(){
   interrupts();
 }
 
-void TCD1304_GP::_shift_data(bool replace_data){
+void TCD1304_GP::_shift_data(bool replace_data) {
   noInterrupts();
 
   // Sortie des données
@@ -77,29 +77,32 @@ void TCD1304_GP::_shift_data(bool replace_data){
   PWMPinSelect(_sh_pin);
   PWMStart(_sh_pin, true);
 
-  for (int i=0; i<N_PIXELS; i++){
-      if (replace_data) {_data.all[i] = _one_pixel_read();}
-      else {_data.all[i] += _one_pixel_read();}
+  for (int i = 0; i < N_PIXELS; i++) {
+    if (replace_data) {
+      _data.all[i] = _one_pixel_read();
+    } else {
+      _data.all[i] += _one_pixel_read();
+    }
   }
 
   interrupts();
 }
 
-void TCD1304_GP::acquire_data(int acquisition_nb){
-  for (int i = 0; i < acquisition_nb; i++){
+void TCD1304_GP::acquire_data(int acquisition_nb) {
+  for (int i = 0; i < acquisition_nb; i++) {
     _capture_data();
-    _shift_data(i==0);
+    _shift_data(i == 0);
   }
 }
 
-void TCD1304_GP::set_integration_time(int time){
+void TCD1304_GP::set_integration_time(int time) {
   _integration_time = max(time, 2);
 }
 
-uint16_t TCD1304_GP::get_data(int i){
+uint16_t TCD1304_GP::get_data(int i) {
   return _data.all[i];  // Retourne le pointeur
 }
 
-int TCD1304_GP::get_n_pixel(){
+int TCD1304_GP::get_n_pixel() {
   return N_PIXELS;
 }
