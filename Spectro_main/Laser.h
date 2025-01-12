@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-#define MAX_POWER 500  // Puissance maximale du laser (mW)
+#define MAX_POWER 500            // Puissance maximale du laser (mW)
+#define LASING_CODE 0b1010'1010  // Code qui doit être fourni pour permettre au laser de s'allumer
 
 // Paramètres de la thermistance
 #define _T_0 298.15  // Tepérature à 25oC (K)
@@ -21,6 +22,7 @@ private:
   byte _temp_pin;   // Pin de la thermistance
 
   bool _state = false;          // État du laser (true: on, false: off)
+  bool _allow_lasing = false;   // Permettre au laser de s'allumer
   int _laser_PWM_period = 256;  // Période du PWM de la pin d'activation du laser
   int _power = 5;               // Puissance du laser
   int _timeout = 0;             // Temps après lequel le laser s'éteint (ms)
@@ -30,7 +32,8 @@ private:
 public:
   Laser(byte laser_pin, byte tec_pin, byte pd_pin, byte temp_pin);
 
-  void activate(bool state);  // Activer/désactiver le laser
+  void activate(bool state);                       // Activer/désactiver le laser
+  void allow_lasing(bool state, byte code = 0b0);  // Permettre l'activation du laser
 
   float get_power(float V_in, float R);  // Obtenir la puissance du laser (mW)
   float get_temp(float V_in, float R);   // Obtenir la température du laser (oC); V_in: tension d'alimentation (V), R: résistance de mesure (Ohm)
@@ -39,6 +42,7 @@ public:
   void set_target_power(int power);  // Spécifier la puissance cible du laser (mW)
   void set_target_temp(float temp);  // Spécifier la température cible du laser (oC)
   void set_timeout(int time);        // Spécifier le temps après lequel le laser s'éteint (ms)
+  void reset_timout();               // Réinitialiser le timeout après lequel le laser s'éteint automatiquement
 };
 
 #endif

@@ -19,6 +19,16 @@ void Laser::activate(bool state) {
   _state = state;
 }
 
+void Laser::allow_lasing(bool state, byte code) {
+  if (state == false) {
+    _allow_lasing = false;
+  }
+
+  else if ((state == true) and (code == LASING_CODE)) {
+    _allow_lasing = true;
+  }
+}
+
 float Laser::get_power(float V_in, float R) {
   int meas = analogRead(_temp_pin);        // Lecture de la pin de puissance
   float V_out = (float)meas * 3.3 / 1024;  // Conversion de la mesure en valeur de tension
@@ -53,4 +63,7 @@ void Laser::set_target_temp(float temp) {
 
 void Laser::set_timeout(int time) {
   _timeout = time;
+}
+
+void Laser::reset_timout() {
 }
