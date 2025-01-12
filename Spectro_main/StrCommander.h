@@ -21,6 +21,13 @@ enum type_enum {
   FLOAT_FLOAT,
   _CCHAR,  // const char
   STR_,    // c++ string
+  _BOOL_BYTE,
+  _BOOL,
+  BOOL_,
+  VOID,  // No arguments and returns nothing
+  _INT,
+  _FLOAT,
+  FLOAT_,
 };
 
 
@@ -208,6 +215,8 @@ private:
 
       case FLOAT_FLOAT:
         {
+          if (args->length() == 0) { return "'" + *noun + "' expected 1 argument. Got none."; }
+
           float a = std::stof(*args);
 
           float (*fun)(float);
@@ -219,6 +228,8 @@ private:
 
       case _CCHAR:
         {
+          if (args->length() == 0) { return "'" + *noun + "' expected 1 argument. Got none."; }
+
           const char *a = args->c_str();
 
           void (*fun)(const char *);
@@ -236,6 +247,109 @@ private:
           fun = reinterpret_cast<std::string (*)()>(entry.var);
 
           return fun();
+        }
+        break;
+
+      case _BOOL_BYTE:
+        {
+          int n = str_count(*args, '&');
+          if (n != 1) {
+            return "'" + *noun + "' expected 2 arguments. Got " + std::to_string(n + 1) + " instead.";
+          }
+
+          std::vector<std::string> _args = split(args, '&');
+
+          bool a1;
+          byte a2 = (byte)_args[1][0];
+
+          switch (is_true(_args[1])) {
+            case 1: a1 = true; break;
+            case 0: a1 = false; break;
+            case 2: return "invalid bool conversion of '" + *args + "'."; break;
+          }
+
+          void (*fun)(bool, byte);
+          fun = reinterpret_cast<void (*)(bool, byte)>(entry.var);
+
+          fun(a1, a2);
+
+          return "";
+        }
+        break;
+
+      case _BOOL:
+        {
+          if (args->length() == 0) { return "'" + *noun + "' expected 1 argument. Got none."; }
+
+          bool a;
+          switch (is_true(*args)) {
+            case 1: a = true; break;
+            case 0: a = false; break;
+            case 2: return "invalid bool conversion of '" + *args + "'."; break;
+          }
+
+          void (*fun)(bool);
+          fun = reinterpret_cast<void (*)(bool)>(entry.var);
+
+          fun(a);
+
+          return "";
+        }
+        break;
+
+      case BOOL_:
+        {
+          bool (*fun)();
+          fun = reinterpret_cast<bool (*)()>(entry.var);
+          return std::to_string(fun());
+        }
+        break;
+
+      case VOID:
+        {
+          void (*fun)();
+          fun = reinterpret_cast<void (*)()>(entry.var);
+          fun();
+          return "";
+        }
+        break;
+
+      case _INT:
+        {
+          if (args->length() == 0) { return "'" + *noun + "' expected 1 argument. Got none."; }
+
+          int a = std::stoi(*args);
+
+          void (*fun)(int);
+          fun = reinterpret_cast<void (*)(int)>(entry.var);
+
+          fun(a);
+
+          return "";
+        }
+        break;
+
+      case _FLOAT:
+        {
+          if (args->length() == 0) { return "'" + *noun + "' expected 1 argument. Got none."; }
+
+          float a = std::stof(*args);
+
+          void (*fun)(float);
+          fun = reinterpret_cast<void (*)(float)>(entry.var);
+
+          fun(a);
+
+          return "";
+        }
+        break;
+
+      case FLOAT_:
+        {
+          float (*fun)();
+          fun = reinterpret_cast<float (*)()>(entry.var);
+
+          return std::to_string(fun());
         }
         break;
 
@@ -265,32 +379,34 @@ public:
     std::string return_msg;
     std::string test;
 
-    if (tokens.size() < 2) {
+    int n_tokens = tokens.size();
+
+    if (n_tokens < 2) {
       return "Expected at least 2 tokens. Got " + std::to_string(tokens.size());
     }
 
     std::string verb = tokens[0];
     std::string noun = tokens[1];
+    std::string args;
+    if (n_tokens >= 3) {
+      args = tokens[2];
+    } else {
+      args = "";
+    }
 
     if (verb.compare("get") == 0) {
       return _get_var(&noun);
     }
 
     else if (verb.compare("set") == 0) {
-      if (tokens.size() < 2) {
+      if (n_tokens < 3) {
         return "Expected 3 tokens. Got " + std::to_string(tokens.size());
       }
 
-      std::string args = tokens[2];
       return _set_var(&noun, &args);
     }
 
     else if (verb.compare("call") == 0) {
-      if (tokens.size() < 2) {
-        return "Expected 3 tokens. Got " + std::to_string(tokens.size());
-      }
-
-      std::string args = tokens[2];
       return _call_fun(&noun, &args);
     }
 
