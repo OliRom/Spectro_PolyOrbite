@@ -1,3 +1,7 @@
+/*
+ Classe pour contrôler le CCD.
+*/
+
 #ifndef AD5272_H
 #define AD5272_H
 

@@ -173,11 +173,11 @@ void PWMPinSelect(int pin, bool activation) {
   *PmnPFS_ptr = 0b0000'0011'0000'0001'0000'0000'0000'0000;                                 // Associer la Pin à la fonction GPT en mode I/O périphérique
 
   if (PWM_pin_is_A(pin)) {
-    GPT->GTIOR_b.OAE = activation;  // Activer la sortir de la pin GTIOCnA
+    GPT->GTIOR_b.OAE = activation;  // Activer la sortie de la pin GTIOCnA
     GPT->GTIOR_b.GTIOA = 0b1001;    // Fonction de la pin GTIOCnA (voir tableau 21.4 du datasheet)
     GPT->GTBER_b.CCRA = 0b01;       // GTCCRA buffer operation (GTCCRA<->GTCCRC)
   } else {
-    GPT->GTIOR_b.OBE = activation;  // Activer la sortir de la pin GTIOCnB
+    GPT->GTIOR_b.OBE = activation;  // Activer la sortie de la pin GTIOCnB
     GPT->GTIOR_b.GTIOB = 0b1001;    // Fonction de la pin GTIOCnB (voir tableau 21.4 du datasheet)
     GPT->GTBER_b.CCRB = 0b01;       // GTCCRB buffer operation (GTCCRB<->GTCCRE)
   }

@@ -1,3 +1,7 @@
+/*
+ Classe pour contrôler le CCD.
+*/
+
 #ifndef TCD1304_GP_H
 #define TCD1304_GP_H
 
@@ -57,8 +61,9 @@ public:
 
   void acquire_data(int acquisition_nb = 1);  // Lire les données du capteur. Correspond à "_capture_data()" suivi de "_shift_data()".
 
-  void set_integration_time(int time);  // Spécifier le temps d'intégration (us)
-  uint16_t get_data(int i);             // Pointeur vers les données en mémoire
+  void set_integration_time(int time);    // Spécifier le temps d'intégration (us)
+  const pixels_format* get_data() const;  // Pointeur vers les donneés en mémoire
+  uint16_t get_data(int i);               // Retourne la valeur du pixel i
 
   int get_n_pixel();  // Obtenir le nombre de pixels du CCD
 };

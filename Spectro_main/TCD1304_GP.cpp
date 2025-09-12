@@ -99,8 +99,12 @@ void TCD1304_GP::set_integration_time(int time) {
   _integration_time = max(time, 2);
 }
 
+const pixels_format* TCD1304_GP::get_data() const {
+  return &_data;  // Retourne le pointeur
+}
+
 uint16_t TCD1304_GP::get_data(int i) {
-  return _data.all[i];  // Retourne le pointeur
+  return _data.all[i];
 }
 
 int TCD1304_GP::get_n_pixel() {

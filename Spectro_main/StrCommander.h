@@ -1,3 +1,8 @@
+/*
+ Module pour obtenir des variables, initialiser des variables ou appeler des fonctions
+ sur le Arduino à partir de strings.
+*/
+
 #ifndef STR_COMMANDER
 #define STR_COMMANDER
 
@@ -22,6 +27,7 @@ enum type_enum {
   _CCHAR,  // const char
   STR_,    // c++ string
   _BOOL_BYTE,
+  BOOL_BOOL_BYTE,
   _BOOL,
   BOOL_,
   VOID,  // No arguments and returns nothing
@@ -32,7 +38,7 @@ enum type_enum {
 
 
 /*
-Split a sring according to a delimiter.
+Split a string according to a delimiter.
 
 string (std::string): string to split
 delim (char): character where to split the string
@@ -262,7 +268,7 @@ private:
           bool a1;
           byte a2 = (byte)_args[1][0];
 
-          switch (is_true(_args[1])) {
+          switch (is_true(_args[0])) {
             case 1: a1 = true; break;
             case 0: a1 = false; break;
             case 2: return "invalid bool conversion of '" + *args + "'."; break;
@@ -274,6 +280,31 @@ private:
           fun(a1, a2);
 
           return "";
+        }
+        break;
+
+        case BOOL_BOOL_BYTE:
+        {
+          int n = str_count(*args, '&');
+          if (n != 1) {
+            return "'" + *noun + "' expected 2 arguments. Got " + std::to_string(n + 1) + " instead.";
+          }
+
+          std::vector<std::string> _args = split(args, '&');
+
+          bool a1;
+          byte a2 = (byte)_args[1][0];
+
+          switch (is_true(_args[0])) {
+            case 1: a1 = true; break;
+            case 0: a1 = false; break;
+            case 2: return "invalid bool conversion of '" + *args + "'."; break;
+          }
+
+          bool (*fun)(bool, byte);
+          fun = reinterpret_cast<bool (*)(bool, byte)>(entry.var);
+
+          return std::to_string(fun(a1, a2));
         }
         break;
 
