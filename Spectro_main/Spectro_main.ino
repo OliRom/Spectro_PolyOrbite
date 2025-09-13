@@ -20,7 +20,7 @@ void setup() {
   pinMode(FAN_PIN, OUTPUT);
   activate_fan(false);
 
-  CCD.set_integration_time(200000);
+  CCD.set_integration_time(DEFAULT_INTEGRATION_TIME);
 
   cmd.set_var_table(&var_table);
   cmd.set_fun_table(&fun_table);
@@ -57,27 +57,3 @@ void loop() {
   run_task(laser_thermostat_task);
   run_task(stop_fan_task);
 }
-
-// void loop() {
-//   if (Serial.available() > 0) {
-//     int tps = Serial.parseInt();
-//     CCD.set_integration_time(tps);
-//     Serial.print("Temps d'intégration: ");
-//     Serial.println(tps);
-//     delay(1000);
-//     while (Serial.available() > 0) { Serial.read(); }
-//   }
-
-//   // CCD.capture_data();
-//   // CCD.shift_data();
-
-//   CCD.acquire_data(10);
-
-//   for (int i = 0; i < CCD.get_n_pixel(); i++) {
-//     Serial.print(i);
-//     Serial.print(",");
-//     Serial.println(CCD.get_data(i));
-//   }
-
-//   delay(500);
-// }

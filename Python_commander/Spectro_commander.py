@@ -108,11 +108,7 @@ doit être spécifié.
 
 - acquire_data(moyennage=[int]):
     Demande au spectro de faire une lecture de spectre. Le moyennage est le nombre de lectures qui \
-seront effectuées pour réduire le bruit.
-
-- get_data():
-    Recueillir les données du spectromètre. Les données sont enregistrées dans un fichier dont le \
-nom est le moment où cette commande est exécutée.
+seront effectuées pour réduire le ratio signal sur bruit.
 """
     instructions_label = tk.Label(root, text=instructions_text, anchor="w", justify=tk.LEFT,
                                   wraplength=instr_width)
@@ -137,7 +133,6 @@ if __name__ == "__main__":
         "get_temp",
         "set_integ_time",
         "acquire_data",
-        "get_data",
     ]
     
     # Alias des fonctions pour débugguer
@@ -158,7 +153,7 @@ if __name__ == "__main__":
 
     # Fonctions appelées avec les résultats de certains appels de fonction
     fn_callbacks = {
-        "get_data": get_data_cbk,
+        "acquire_data": get_data_cbk,
     }
     
     # Exécuter la fenêtre principale

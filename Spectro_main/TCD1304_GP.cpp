@@ -2,6 +2,7 @@
 #include "TCD1304_GP.h"
 #include "Fonctions.h"
 
+
 TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin)
   : _clk_pin(clk_pin), _os_pin(os_pin), _sh_pin(sh_pin), _icg_pin(icg_pin) {
   pinMode(_clk_pin, OUTPUT);
@@ -23,12 +24,14 @@ TCD1304_GP::TCD1304_GP(byte clk_pin, byte os_pin, byte sh_pin, byte icg_pin)
 
   PWMSetup(_sh_pin);
   PWMPinSelect(_sh_pin);
-  PWMSetPeriod(_sh_pin, 700);
-  PWMSetDutyCycle(_sh_pin, 200);
+  // PWMSetPeriod(_sh_pin, 700);
+  PWMSetPeriod(_sh_pin, 800);
+  // PWMSetDutyCycle(_sh_pin, 200);
+  PWMSetDutyCycle(_sh_pin, 400);
   PWMStart(_sh_pin, true);
 }
 
-uint16_t TCD1304_GP::_one_pixel_read() {
+PIXEL_DATA_TYPE TCD1304_GP::_one_pixel_read() {
   _pulse_clock();  // 1000 ns
   ADCStart(false);
   _pulse_clock();  // 1000 ns
@@ -67,7 +70,7 @@ void TCD1304_GP::_capture_data() {
   interrupts();
 }
 
-void TCD1304_GP::_shift_data(bool replace_data) {
+void TCD1304_GP::_shift_data(bool replace_data, read_destination destination) {
   noInterrupts();
 
   // Sortie des données
@@ -79,19 +82,47 @@ void TCD1304_GP::_shift_data(bool replace_data) {
 
   for (int i = 0; i < N_PIXELS; i++) {
     if (replace_data) {
-      _data.all[i] = _one_pixel_read();
+
+      switch (destination) {
+        case (CALIBRATION):
+        {
+          _calibration.all[i] = _one_pixel_read();
+          break;
+        }
+
+        case (DATA):
+        {
+          _data.all[i] = _one_pixel_read();
+          break;
+        }
+      }
+
     } else {
-      _data.all[i] += _one_pixel_read();
+
+      switch (destination) {
+        case (CALIBRATION):
+        {
+          _calibration.all[i] += _one_pixel_read();
+          break;
+        }
+
+        case (DATA):
+        {
+          _data.all[i] += _one_pixel_read();
+          break;
+        }
+      }
+
     }
   }
 
   interrupts();
 }
 
-void TCD1304_GP::acquire_data(int acquisition_nb) {
+void TCD1304_GP::acquire_data(int acquisition_nb, read_destination destination) {
   for (int i = 0; i < acquisition_nb; i++) {
     _capture_data();
-    _shift_data(i == 0);
+    _shift_data(i == 0, destination);
   }
 }
 
@@ -99,12 +130,36 @@ void TCD1304_GP::set_integration_time(int time) {
   _integration_time = max(time, 2);
 }
 
-const pixels_format* TCD1304_GP::get_data() const {
-  return &_data;  // Retourne le pointeur
+const pixels_format* TCD1304_GP::get_data_pointer(read_destination destination) const {
+  switch (destination) {
+    case DATA:
+    {
+      return &_data;  // Retourne le pointeur
+      break;
+    }
+
+    case CALIBRATION:
+    {
+      return &_calibration;  // Retourne le pointeur
+      break;
+    }
+  }
 }
 
-uint16_t TCD1304_GP::get_data(int i) {
-  return _data.all[i];
+PIXEL_DATA_TYPE TCD1304_GP::get_data(int i, read_destination destination) {
+    switch (destination) {
+    case DATA:
+    {
+      return _data.all[i];
+      break;
+    }
+
+    case CALIBRATION:
+    {
+      return _calibration.all[i];
+      break;
+    }
+  }
 }
 
 int TCD1304_GP::get_n_pixel() {

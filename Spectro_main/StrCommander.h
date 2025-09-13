@@ -26,6 +26,7 @@ enum type_enum {
   FLOAT_FLOAT,
   _CCHAR,  // const char
   STR_,    // c++ string
+  STR_INT,
   _BOOL_BYTE,
   BOOL_BOOL_BYTE,
   _BOOL,
@@ -255,6 +256,18 @@ private:
           return fun();
         }
         break;
+
+      case STR_INT:
+        {
+          if (args->length() == 0) { return "'" + *noun + "' expected 1 argument. Got none."; }
+
+          int a = std::stoi(*args);
+
+          std::string (*fun)(int);
+          fun = reinterpret_cast<std::string (*)(int)>(entry.var);
+
+          return fun(a);
+        }
 
       case _BOOL_BYTE:
         {

@@ -27,6 +27,47 @@ StrCommander cmd;
 int laser_target_temp = 30;
 
 
+// Tâches à exécuter à chaque de manière récurrente
+
+// Arrêter le laser
+void stop_laser() {
+  laser.activate(0);
+}
+Task stop_laser_task = { stop_laser, LASER_TIMER };
+
+// Arrêter le ventilateur
+void stop_fan() {
+  // Seulement arrêter le ventilateur lorsque le laser est assez froid
+  if (laser.get_temp() > laser_target_temp) {
+  } else {
+    digitalWrite(FAN_PIN, 0);
+  }
+}
+Task stop_fan_task = { stop_fan, FAN_TIMER };
+
+// Contrôle de la température à chaque seconde
+void laser_thermostat() {
+  float temp_error = laser.get_temp() - laser_target_temp;
+  bool activate_tec = true;
+  if (temp_error > 5) {
+    laser.set_tec_power(100);
+  } else if (temp_error >= 0) {
+    laser.set_tec_power(50);
+  } else if (temp_error >= -1) {
+    laser.set_tec_power(20);
+  } else {
+    laser.set_tec_power(0);
+    activate_tec = false;
+  }
+
+  if (activate_tec) {
+    digitalWrite(FAN_PIN, 1);
+    reset_task_timer(stop_fan_task);
+  }
+}
+Task laser_thermostat_task = { laser_thermostat, 100 };
+
+
 // Obtenir l'état du laser (allumé/éteint)
 bool get_laser_state() {
   return laser.get_state();
@@ -52,38 +93,69 @@ void set_integ_time(int time) {
   CCD.set_integration_time(time);
 }
 
-// Obtenir les données d'un spectre
-std::string acquire_data() {
+// Obtenir les données d'un spectre et les envoie sur le port série
+std::string acquire_data(int n_measures) {
   std::string msg;
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LEDG, HIGH);
+  digitalWrite(LEDR, HIGH);
+  digitalWrite(LEDB, HIGH);
 
   // Pour réduire le bruit dans les mesures
   digitalWrite(FAN_PIN, 0);
   laser.set_tec_power(0);
 
+  // Mesure de calibration
+  const pixels_format *calibration_data = CCD.get_data_pointer(CALIBRATION);  // Pointeur vers les données
+  int n_tentatives = 0;
+  const int shielded_limit = pow(2, 12) * 0.65;
+  do {
+    CCD.acquire_data(1, CALIBRATION);
+    if (n_tentatives++ > 9) {
+      msg += "Calibration impossible. Le temps d'intégration est probablement trop élevé.\n";
+      msg += "La dernière valeur de calibration est: ";
+      msg += std::to_string(calibration_data->util.shielded[N_SHIELDED_PIXELS / 2]);
+      msg += " < " + std::to_string(shielded_limit) + ".";
+      return msg;
+    }
+  } while (calibration_data->util.shielded[N_SHIELDED_PIXELS / 2] < shielded_limit);
+  CCD.acquire_data(1, CALIBRATION);
+  CCD.acquire_data(n_measures, CALIBRATION);
+
   // Prendre les mesures
+  digitalWrite(LEDG, LOW);
+  digitalWrite(LEDR, LOW);
+  digitalWrite(LEDB, LOW);
   laser.activate(true);
+  reset_task_timer(stop_laser_task);
   if (laser.get_state() == 0) {
     msg += "Acquisition impossible. allow_lasing() n'a probablement pas été appelé.";
-  } else {
-    msg += "Acquisition réussie.";
-    CCD.acquire_data();
+    laser.activate(false);
+    return msg;
   }
+
+  CCD.acquire_data(1, DATA);
+  CCD.acquire_data(n_measures, DATA);
+  digitalWrite(LEDG, HIGH);
+  digitalWrite(LEDR, HIGH);
+  digitalWrite(LEDB, HIGH);
   laser.activate(false);
 
-  return msg;
-}
-
-// Envoyer le spectre à travers le port série
-std::string get_data() {
-  const pixels_format *pixels = CCD.get_data();  // Data pointer
-  std::string msg;                               // Message to send to the computer
-
+  const pixels_format *calibration = CCD.get_data_pointer(CALIBRATION);  // Calibration pointer
+  const pixels_format *data = CCD.get_data_pointer(DATA);                // Data pointer
   for (int i = 0; i < N_PIXELS; i++) {
-    msg += std::to_string(pixels->all[i]) + ",";
+    PIXEL_DATA_TYPE pixel_value;
+    if (calibration->all[i] < data->all[i]) {  // Une valeur élevée signifie un manque de lumière
+      pixel_value = 0;
+    } else {
+      pixel_value = calibration->all[i] - data->all[i];
+    }
+    msg += std::to_string(pixel_value) + ",";
   }
 
   return msg;
 }
+
 
 // Fonctions de débugguage
 #ifdef DEBUG_MODE
@@ -93,6 +165,7 @@ std::string get_data() {
 // Activer le laser
 void activate_laser(bool state) {
   laser.activate(state);
+  reset_task_timer(stop_laser_task);
 }
 
 // Ajuster la valeur du potentiomètre
@@ -142,54 +215,6 @@ void debug_setup() {
 #endif
 
 
-// Tâches à exécuter à chaque de manière récurrente
-
-// Arrêter le laser
-void stop_laser() {
-  laser.activate(0);
-}
-Task stop_laser_task = { stop_laser, LASER_TIMER };
-
-// Arrêter le ventilateur
-void stop_fan() {
-  // Seulement arrêter le ventilateur lorsque le laser est assez froid
-  if (laser.get_temp() > laser_target_temp) {
-  } else {
-    digitalWrite(FAN_PIN, 0);
-  }
-}
-Task stop_fan_task = { stop_fan, FAN_TIMER };
-
-// Contrôle de la température à chaque seconde
-void laser_thermostat() {
-  float temp_error = laser.get_temp() - laser_target_temp;
-  bool activate_tec = true;
-  if (temp_error > 5) {
-    laser.set_tec_power(100);
-  } else if (temp_error >= 0) {
-    laser.set_tec_power(50);
-  } else if (temp_error >= -1) {
-    laser.set_tec_power(20);
-  } else {
-    laser.set_tec_power(0);
-    activate_tec = false;
-  }
-
-  if (activate_tec) {
-    digitalWrite(FAN_PIN, 1);
-    reset_task_timer(stop_fan_task);
-  }
-}
-Task laser_thermostat_task = { laser_thermostat, 100 };
-
-
-// std::map<std::string, str_cmd_struct> var_table = {
-//   { "int1", { &i1, INT } },
-//   { "int2", { &i2, INT } },
-//   { "float1", { &f1, FLOAT } },
-//   { "bool1", { &b1, BOOL } },
-//   { "age", { &pers.age, INT } }
-// };
 std::map<std::string, str_cmd_struct> var_table = {
   { "laser_target_temp", { &laser_target_temp, INT } }
 };
@@ -200,8 +225,8 @@ std::map<std::string, str_cmd_struct> fun_table = {
   // { "set_temp", { (void *)set_temp, _FLOAT } },
   { "get_temp", { (void *)get_temp, FLOAT_ } },
   { "set_integ_time", { (void *)set_integ_time, _INT } },
-  { "acquire_data", { (void *)acquire_data, STR_ } },
-  { "get_data", { (void *)get_data, STR_ } },  // Celui-ci est à modifier pour avoir le bon type de données.
+  { "acquire_data", { (void *)acquire_data, STR_INT } },
+// { "get_data", { (void *)get_data, STR_ } },
 
 #ifdef DEBUG_MODE
   { "activate_laser", { (void *)activate_laser, _BOOL } },

@@ -21,7 +21,7 @@
 #define CLK_PIN D2  // Clock
 
 // Paramètres
-#define INTEGRATION_TIME  // Temps d'intégration
+#define DEFAULT_INTEGRATION_TIME 500  // Temps d'intégration par défaut
 #define CLK_FREQ 1e6      // Fréquence de la clock (Hz)
 
 

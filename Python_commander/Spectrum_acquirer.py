@@ -12,10 +12,11 @@ def str_to_array(msg):
     return np.fromstring(msg, dtype=int, sep=',')
     
 def plot_spectrum(data, title):
-    plt.plot(data)
+    plt.plot(data, label=title)
     plt.xlabel("Numéro du pixel")
     plt.ylabel("Intensité lumineuse (u.a.)")
-    plt.title(title)
+    plt.legend()
+    plt.title("Spectre")
     plt.show()
     
 def get_data_cbk(msg):
