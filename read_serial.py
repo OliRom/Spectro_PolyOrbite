@@ -49,6 +49,3 @@ except KeyboardInterrupt:
     # Fermer la connexion série en cas d'interruption manuelle (Ctrl+C)
     ser.close()
     print("Connexion série fermée.")
-
-
-
