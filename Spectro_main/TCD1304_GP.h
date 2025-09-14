@@ -70,9 +70,9 @@ public:
   // Mettre calibration à true pour enregistrer les données dans le registre de calibration.
   void acquire_data(int acquisition_nb = 1, read_destination destination = DATA);
 
-  void set_integration_time(int time);                                       // Spécifier le temps d'intégration (us)
+  void set_integration_time(int time);                                               // Spécifier le temps d'intégration (us)
   const pixels_format* get_data_pointer(read_destination destination = DATA) const;  // Pointeur vers les données en mémoire
-  PIXEL_DATA_TYPE get_data(int i, read_destination destination = DATA);      // Retourne la valeur du pixel i
+  PIXEL_DATA_TYPE get_data(int i, read_destination destination = DATA);              // Retourne la valeur du pixel i
 
   int get_n_pixel();  // Obtenir le nombre de pixels du CCD
 };

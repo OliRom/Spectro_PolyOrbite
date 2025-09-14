@@ -7,7 +7,7 @@
 // * * * * * * * * * * * * * * //
 // * * * Options générales * * //
 // * * * * * * * * * * * * * * //
-#define DEBUG_MODE  // Décommenter cette ligne pour être en mode débugguage
+// #define DEBUG_MODE  // Décommenter cette ligne pour être en mode débugguage
 
 
 // * * * * * * * * * * * * * * //
@@ -22,7 +22,7 @@
 
 // Paramètres
 #define DEFAULT_INTEGRATION_TIME 500  // Temps d'intégration par défaut
-#define CLK_FREQ 1e6      // Fréquence de la clock (Hz)
+#define CLK_FREQ 1e6                  // Fréquence de la clock (Hz)
 
 
 // * * * * * * * * * * * * * * * //

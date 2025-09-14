@@ -296,7 +296,7 @@ private:
         }
         break;
 
-        case BOOL_BOOL_BYTE:
+      case BOOL_BOOL_BYTE:
         {
           int n = str_count(*args, '&');
           if (n != 1) {

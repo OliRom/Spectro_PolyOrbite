@@ -37,12 +37,12 @@ def exec_gui(aliases_list, function_callbacks):
     
     x_pos = 250
     arg_width = 250
-    instr_width = 800
+    instr_width = 600
 
     # Création de la fenêtre principale
     root = tk.Tk()
     root.title("Spectro commander")
-    root.geometry(str(x_pos + arg_width + instr_width + 50)+"x700")
+    root.geometry(str(x_pos + arg_width + instr_width + 50)+"x600")
 
     # Liste déroulante (alias)
     alias_default_txt = tk.StringVar()
@@ -90,21 +90,18 @@ ou à la fonction à appeler. Appuyez sur le bouton d'action respectif. Le résu
 la boite de texte dédiée à cet effet.
 
 Alias de variables disponibles (set/get):
-- laser_target_temp (int): température maximale cible du laser (Celsius)
+- laser_target_temp [int]: température maximale cible du laser (Celsius)
 
 Alias de fonctions disponibles (call):
-- get_laser_state():
-    1 si le laser est allumé. 0 Sinon.
-    
+- get_temp():
+    Retourne la température du laser [Celsius].
+
 - allow_lasing(state=[0, 1], code=[str]):
     Permettre l'activation du laser. Pour que la commande fasse effet, le bon caractère de code \
 doit être spécifié.
 
-- get_temp():
-    Retourne la température du laser [Celsius].
-
 - set_integ_time(time=[int]):
-    Temps [us] durant lequel s'effectue une mesure.
+    Temps [us] durant lequel s'effectue une mesure. La valeur par défaut est 500us.
 
 - acquire_data(moyennage=[int]):
     Demande au spectro de faire une lecture de spectre. Le moyennage est le nombre de lectures qui \
@@ -128,9 +125,8 @@ if __name__ == "__main__":
 
     # Alias pour les fonctions pour contrôler le spectro
     fun_aliases = [
-        "get_laser_state",
-        "allow_lasing",
         "get_temp",
+        "allow_lasing",
         "set_integ_time",
         "acquire_data",
     ]
@@ -138,6 +134,7 @@ if __name__ == "__main__":
     # Alias des fonctions pour débugguer
     debug_aliases = [
         "activate_laser",
+        "get_laser_state",
         "set_laser_timer",
         "reset_laser_timer",
         "activate_fan",

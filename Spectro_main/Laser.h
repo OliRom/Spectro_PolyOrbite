@@ -59,8 +59,8 @@ public:
 
   void set_target_power(int power);  // Spécifier la puissance cible du laser (mW)
   // void set_target_temp(float temp);  // Spécifier la température cible du laser (oC)
-  void set_timeout(int time);        // Spécifier le temps après lequel le laser s'éteint (ms)
-  void reset_timout();               // Réinitialiser le timeout après lequel le laser s'éteint automatiquement
+  void set_timeout(int time);  // Spécifier le temps après lequel le laser s'éteint (ms)
+  void reset_timout();         // Réinitialiser le timeout après lequel le laser s'éteint automatiquement
 };
 
 #endif

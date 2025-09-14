@@ -28,8 +28,8 @@
 
 // Structure pour définir les tâches.
 struct Task {
-  void (*func)();                  // Pointeur vers la fonction à exécuter
-  unsigned long interval;          // Intervalle d'exécution en ms
+  void (*func)();                      // Pointeur vers la fonction à exécuter
+  unsigned long interval;              // Intervalle d'exécution en ms
   unsigned long previous_call_ms = 0;  // Temps du dernier appel
 };
 

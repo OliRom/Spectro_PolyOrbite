@@ -23,11 +23,35 @@
 
 TCD1304_GP CCD(CLK_PIN, OS_PIN, SH_PIN, ICG_PIN);
 Laser laser(LASER_PIN, TEC_PIN, LASER_POWER_PIN, LASER_TEMPERATURE_PIN);
-StrCommander cmd;
 int laser_target_temp = 30;
+
+StrCommander cmd;     // Commandeur par chaine de caractères
+String ard_str;       // String défini par Arduino
+std::string command;  // Commande
+std::string res;      // Réponse
 
 
 // Tâches à exécuter à chaque de manière récurrente
+
+// Lire le port série et exécuter la commande associée
+void execute_command() {
+  if (Serial.available() != 0) {
+    ard_str = Serial.readStringUntil('\n');  // Arduino string
+    ard_str.trim();                          // Trim the string (remove the \n at the end)
+    command = std::string(ard_str.c_str());  // Convert to std::string
+
+    // Serial.print("Received command: ");
+    Serial.println(command.c_str());
+
+    res = cmd.execute_command(&command);  // Execute command
+
+    Serial.print("Results: ");
+    Serial.println(res.c_str());
+
+    Serial.println(char(4));  // End of transmission
+  }
+}
+Task execute_command_task = { execute_command, 0 };
 
 // Arrêter le laser
 void stop_laser() {
@@ -68,11 +92,6 @@ void laser_thermostat() {
 Task laser_thermostat_task = { laser_thermostat, 100 };
 
 
-// Obtenir l'état du laser (allumé/éteint)
-bool get_laser_state() {
-  return laser.get_state();
-}
-
 // Permettre l'activation du laser
 bool allow_lasing(bool state, byte code) {
   return laser.allow_lasing(state, code);
@@ -96,10 +115,15 @@ void set_integ_time(int time) {
 // Obtenir les données d'un spectre et les envoie sur le port série
 std::string acquire_data(int n_measures) {
   std::string msg;
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LEDG, HIGH);
+
+#ifdef DEBUG_MODE  // Pour simuler l'activation du laser
+  pinMode(LEDG, OUTPUT);
+  pinMode(LEDR, OUTPUT);
+  pinMode(LEDB, OUTPUT);
+  digitalWrite(LEDG, HIGH);  // Une mesure HIGH éteint la LED
   digitalWrite(LEDR, HIGH);
   digitalWrite(LEDB, HIGH);
+#endif
 
   // Pour réduire le bruit dans les mesures
   digitalWrite(FAN_PIN, 0);
@@ -123,9 +147,12 @@ std::string acquire_data(int n_measures) {
   CCD.acquire_data(n_measures, CALIBRATION);
 
   // Prendre les mesures
+#ifdef DEBUG_MODE
   digitalWrite(LEDG, LOW);
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDB, LOW);
+#endif
+
   laser.activate(true);
   reset_task_timer(stop_laser_task);
   if (laser.get_state() == 0) {
@@ -136,11 +163,15 @@ std::string acquire_data(int n_measures) {
 
   CCD.acquire_data(1, DATA);
   CCD.acquire_data(n_measures, DATA);
+  laser.activate(false);
+
+#ifdef DEBUG_MODE
   digitalWrite(LEDG, HIGH);
   digitalWrite(LEDR, HIGH);
   digitalWrite(LEDB, HIGH);
-  laser.activate(false);
+#endif
 
+  // Traiter les données et les formatter sous forme de string
   const pixels_format *calibration = CCD.get_data_pointer(CALIBRATION);  // Calibration pointer
   const pixels_format *data = CCD.get_data_pointer(DATA);                // Data pointer
   for (int i = 0; i < N_PIXELS; i++) {
@@ -166,6 +197,11 @@ std::string acquire_data(int n_measures) {
 void activate_laser(bool state) {
   laser.activate(state);
   reset_task_timer(stop_laser_task);
+}
+
+// Obtenir l'état du laser (allumé/éteint)
+bool get_laser_state() {
+  return laser.get_state();
 }
 
 // Ajuster la valeur du potentiomètre
@@ -220,7 +256,6 @@ std::map<std::string, str_cmd_struct> var_table = {
 };
 
 std::map<std::string, str_cmd_struct> fun_table = {
-  { "get_laser_state", { (void *)get_laser_state, BOOL_ } },
   { "allow_lasing", { (void *)allow_lasing, BOOL_BOOL_BYTE } },
   // { "set_temp", { (void *)set_temp, _FLOAT } },
   { "get_temp", { (void *)get_temp, FLOAT_ } },
@@ -230,6 +265,7 @@ std::map<std::string, str_cmd_struct> fun_table = {
 
 #ifdef DEBUG_MODE
   { "activate_laser", { (void *)activate_laser, _BOOL } },
+  { "get_laser_state", { (void *)get_laser_state, BOOL_ } },
   { "set_laser_timer", { (void *)set_laser_timer, _INT } },
   { "reset_laser_timer", { (void *)reset_laser_timer, VOID } },
   { "set_power", { (void *)set_power, _INT } },

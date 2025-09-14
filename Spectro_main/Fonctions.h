@@ -34,7 +34,7 @@ void digitalWriteFast(byte m, byte n, bool state);  // Écriture rapide sur une 
 /* * * Pour le PWM * * */
 void PWMSetup(int pin);
 void PWMPinSelect(int pin, bool activation = true);  // Mettre activation à True permet de configurer la pin
-void PWMSetPeriod(int pin, uint32_t T);  // La période est donné en nombre de coups d'horloge, soit 10ns; Clk frequency: 100MHz
+void PWMSetPeriod(int pin, uint32_t T);              // La période est donné en nombre de coups d'horloge, soit 10ns; Clk frequency: 100MHz
 void PWMSetDutyCycle(int pin, uint32_t n);
 void PWMStart(int pin, bool state, bool wait = false);  // Attendre la fin du cycle précédent avant de passer à la prochaine instruction si wait=true
 

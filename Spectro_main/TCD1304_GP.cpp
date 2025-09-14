@@ -85,34 +85,33 @@ void TCD1304_GP::_shift_data(bool replace_data, read_destination destination) {
 
       switch (destination) {
         case (CALIBRATION):
-        {
-          _calibration.all[i] = _one_pixel_read();
-          break;
-        }
+          {
+            _calibration.all[i] = _one_pixel_read();
+            break;
+          }
 
         case (DATA):
-        {
-          _data.all[i] = _one_pixel_read();
-          break;
-        }
+          {
+            _data.all[i] = _one_pixel_read();
+            break;
+          }
       }
 
     } else {
 
       switch (destination) {
         case (CALIBRATION):
-        {
-          _calibration.all[i] += _one_pixel_read();
-          break;
-        }
+          {
+            _calibration.all[i] += _one_pixel_read();
+            break;
+          }
 
         case (DATA):
-        {
-          _data.all[i] += _one_pixel_read();
-          break;
-        }
+          {
+            _data.all[i] += _one_pixel_read();
+            break;
+          }
       }
-
     }
   }
 
@@ -133,32 +132,32 @@ void TCD1304_GP::set_integration_time(int time) {
 const pixels_format* TCD1304_GP::get_data_pointer(read_destination destination) const {
   switch (destination) {
     case DATA:
-    {
-      return &_data;  // Retourne le pointeur
-      break;
-    }
+      {
+        return &_data;  // Retourne le pointeur
+        break;
+      }
 
     case CALIBRATION:
-    {
-      return &_calibration;  // Retourne le pointeur
-      break;
-    }
+      {
+        return &_calibration;  // Retourne le pointeur
+        break;
+      }
   }
 }
 
 PIXEL_DATA_TYPE TCD1304_GP::get_data(int i, read_destination destination) {
-    switch (destination) {
+  switch (destination) {
     case DATA:
-    {
-      return _data.all[i];
-      break;
-    }
+      {
+        return _data.all[i];
+        break;
+      }
 
     case CALIBRATION:
-    {
-      return _calibration.all[i];
-      break;
-    }
+      {
+        return _calibration.all[i];
+        break;
+      }
   }
 }
 
