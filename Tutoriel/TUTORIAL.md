@@ -1,6 +1,10 @@
 # Tutoriel sur l'utilisation du spectromètre
 
 
+## Installation
+Pour contrôler le spectro, s'assurer que celui-ci est alimenté (12V) et branché sur le port série d'un ordinateur (cable USB).
+
+
 ## Contrôle du spectromètre à partir de chaines de caractère
 Le spectromètre peut se contrôler avec des chaines de caractères envoyées sur le port série.
 La structure d'une commande est `<verbe> <sujet> [complément]` où le verbe et le sujet sont obligatoires et le complément est optionnel (dépend du verbe et du sujet).
@@ -95,6 +99,7 @@ Cette section se veut un guide pour aider l'utilisateur à déterminer un temps 
 
 ### Temps d'intégration trop faible
 Si le temps d'intégration est trop faible, un graphique comme le suivant peut être obtenu.
+Ceci peut également se produire si l'alimentation de 12V n'est pas branchée ou qu'un des interrupteurs de sécurité du couvercle n'est pas enclenché.
 On observe du bruit autour de zéro.
 
 ![int1_n1](debugging/int1_n1.png "int1_n1")
