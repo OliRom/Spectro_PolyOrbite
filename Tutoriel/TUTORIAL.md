@@ -8,7 +8,7 @@ Pour contrôler le spectro, s'assurer que celui-ci est alimenté (12V) et branch
 ## Contrôle du spectromètre à partir de chaines de caractère
 Le spectromètre peut se contrôler avec des chaines de caractères envoyées sur le port série.
 La structure d'une commande est `<verbe> <sujet> [complément]` où le verbe et le sujet sont obligatoires et le complément est optionnel (dépend du verbe et du sujet).
-Les sujets peuvent être soit une variable, soit une fonction.
+Le `<sujet>` peut être soit une variable, soit une fonction.
 Lorsque plusieurs compléments sont spécifiés, ils doivent être séparés par le caractère `&`.
 
 Les verbes disponibles pour une variable sont `"set"` et `"get`" et permettent d'initialiser ou de lire sa valeur.
@@ -58,6 +58,8 @@ La fonction `allow_lasing` permet d'activer (ou désactiver) cette fonction.
 Le premier argument est un booléen qui permet ou non l'activation du laser.
 Le second est un caractère de sécurité qui doit être entré, sans quoi la commande désactive le laser.
 Ce caractère est `@`.
+Le résultat retourné par le spectro est `1` si l'activation du laser est permise.
+Autrement, la valeur `0` est retournée.
 La figure ci-dessous présente un exemple d'appel de cette fonction.
 
 ![allow_lasing](allow_lasing.png "allow_lasing")
@@ -75,13 +77,13 @@ La section [Ajustement du temps d'intégration](#ajustement-du-temps-dintégrati
 ## Acquisition des données avec `acquire_data(n_mesures)`
 L'acquisition des données se fait avec la fonction `acquire_data`.
 L'argument `n_mesures` spécifie le nombre de mesures prises pour moyenner le bruit.
-Par exemple, la commande `call acquire_data 10` mesure 10 spectres avec le temps d'intégration spécifié avec la fonction `set_integration_time`, puis somme les valeurs obtenues pour chaque pixel.
-Une courbe de calibration est également mesurée, puis soustraite du spectre avant de retourner les données afin de supprimer le bruit de fond.
-Les résultats sont retournés sous la forme d'une chaine de caractères où les valeurs des pixels sont séparées par des virgules.
+Par exemple, la commande `call acquire_data 10` effectue 10 lectures de spectre avec le temps d'intégration spécifié avec la fonction `set_integration_time`, puis somme les valeurs obtenues pour chaque pixel.
+Une courbe de calibration est préalablement mesurée, puis soustraite du spectre par le spectro afin de supprimer le bruit de fond.
+Les résultats sont ensuite retournés sous la forme d'une chaine de caractères où les valeurs des pixels sont séparées par des virgules.
 
-Les résultats sont automatiquement affichés à l'aide de matplotlib et enregistrés dans le répertoire `Spectres_data\`.
-Le nom du fichier est indiqué dans le graphique matplotlib tel que présenté ci-bas.
-Plusieurs appels de `acquire_data` sans fermer le graphique superposent les spectres.
+Les résultats sont automatiquement affichés dans un graphique et enregistrés dans le répertoire `Spectres_data\`.
+Le nom du fichier est indiqué dans le graphique tel que présenté ci-bas.
+Des appels subséquents de `acquire_data` ont pour effet de superposer les spectres lorque la fenêtre du graphique est laissée ouverte.
 
 ![exemple_spectre](spectre.png "exemple spectre")
 
@@ -99,14 +101,14 @@ Cette section se veut un guide pour aider l'utilisateur à déterminer un temps 
 
 
 ### Temps d'intégration trop faible
-Si le temps d'intégration est trop faible, un graphique comme le suivant peut être obtenu.
-Ceci peut également se produire si l'alimentation de 12V n'est pas fournie au spectro ou qu'un des interrupteurs de sécurité du couvercle n'est pas enclenché.
-On observe du bruit autour de zéro.
+Si le temps d'intégration est trop faible, un graphique similaire à celui illustré ci-bas peut être obtenu.
+Du bruit autour de zéro est observé.
+Ceci peut également se produire si le spectro n'est pas alimenté avec 12V ou qu'un des interrupteurs de sécurité du couvercle n'est pas enclenché.
 
 ![int1_n1](debugging/int1_n1.png "int1_n1")
 
 Si le temps d'intégation est plus long, on obtient une courbe qui peut ressembler à celle qui suit.
-On peut commencer à discerner un spectre, mais ce dernier est très buité.
+On commence à discerner un spectre, mais ce dernier est très buité.
 
 ![int10000_n1](debugging/int10000_n1.png "int10000_n1")
 
